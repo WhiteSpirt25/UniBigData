@@ -18,7 +18,7 @@ ipython_config.py
 
 # End of https://www.toptal.com/developers/gitignore/api/jupyternotebooks
 
-#Ignore parsed data
+#Ignore learning data
 bd-2021
 
 #Ignore pycache
