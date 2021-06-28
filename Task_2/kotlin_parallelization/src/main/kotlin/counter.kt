@@ -1,11 +1,7 @@
 import java.io.File
 import java.io.InputStream
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.Executors
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.thread
-import kotlin.concurrent.withLock
-
+import java.lang.Math.sqrt
+import kotlin.system.measureTimeMillis
 
 fun findPrime(num:Long, start_divider:Long):Long{
 
@@ -18,67 +14,47 @@ fun findPrime(num:Long, start_divider:Long):Long{
 }
 fun primeFactorCounter(num_str:String):Int{
     var num = num_str.toLong()
-    
-    var count:Int = 0
-    var prime = findPrime(num,2L)
-    while( num > 1 && prime != 0L){
+
+    var count = 0
+    while (num%2 == 0L){
         count++
-        //println(div)
-        num /= prime
-        //println(num)
-        prime = findPrime(num,prime)
-        
+        num/=2
+    }
+    val squareRoot = kotlin.math.sqrt(num.toDouble()).toInt()
+
+    // Run loop from 3 to square root of n. Check for divisibility by i. Add i in arr till it is divisible by i.
+    for (i in 3..squareRoot step 2) {
+        while (num % i == 0L) {
+            count++
+            num /= i
+        }
+    }
+
+    // If n is a prime number greater than 2.
+    if (num > 2) {
+        count++
     }
     //println(count)
     return count
 }
 
-fun consequentCounter(filename:String){
+fun consequentCounter(filename:String): List<Int> {
     val inputStream: InputStream = File(filename).inputStream()
     val primeFactorList = mutableListOf<Int>()
 
     inputStream.bufferedReader().forEachLine { primeFactorList.add(primeFactorCounter(it)) }
-    val file = File("primeFactors.txt")
-    file.appendText(primeFactorList.toString())
+    return primeFactorList.toList()
 }
-
-fun sortListPair(list: List<Pair<Int, Int>>): List<Int> {
-    val sortedPairList = list.sortedWith(compareBy({ it.first }))
-    val result = sortedPairList.map { it.second }
-    return result
-}
-fun parallelCounter(filename:String,numOfThreads:Int) {
-    val inputStream = File(filename).inputStream()
-    val primeFactorList = mutableListOf<Pair<Int,Int>>()
-    val lock = ReentrantLock()
-
-    val executor = Executors.newFixedThreadPool(numOfThreads)
-
-    var counter:Int = 0
-
-    inputStream.bufferedReader().forEachLine {
-        val count_copy = counter
-        counter++
-        val worker = Runnable() {
-            val result = primeFactorCounter(it)
-            //println(result)
-            lock.withLock {
-                primeFactorList.add(Pair(count_copy,result))
-            }
-        }
-        executor.execute(worker)
-    }
-    executor.shutdown()
-    while (!executor.isTerminated) {
-    }
-    println("Finished all threads")
-
-    val file = File("primeFactorsParallel.txt")
-    file.writeText(sortListPair(primeFactorList).toString())
+fun writeListToFile(lst:List<Int>,filename: String){
+    val file = File(filename)
+    file.writeText(lst.toString())
 }
 fun main(){
-    //print(primeFactorCounter("238739043893001"))
-    //consequentCounter("test.txt")
-    parallelCounter("test.txt",4)
-    //test("test.txt")
+
+    val executionTime = measureTimeMillis {
+        writeListToFile(consequentCounter("numbers.txt"),"primeFactorsConsequent.txt")
+    }
+    println("Work time: $executionTime ms")
+
+    //Work time: 76373 ms
 }
