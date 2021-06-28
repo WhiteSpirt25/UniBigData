@@ -17,6 +17,7 @@ dependencies {
     val akkaVersion = "2.6.15"
 
     implementation("com.typesafe.akka", "akka-actor_$scalaVersion", akkaVersion)
+    implementation("io.reactivex.rxjava3:rxkotlin:3.0.1")
     testImplementation(kotlin("test"))
 }
 
@@ -28,6 +29,3 @@ tasks.withType<KotlinCompile>() {
     kotlinOptions.jvmTarget = "1.8"
 }
 
-application {
-    mainClassName = "MainKt"
-}
